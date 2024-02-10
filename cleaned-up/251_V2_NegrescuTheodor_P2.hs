@@ -7,7 +7,7 @@ class MyOp m where
 instance MyOp Lista where
     myFilter fA fB list = MyL $ filter filterBoth (unLista list)
         where
-            filterBoth (MyP a b) = (fA a) && (fB b)
+            filterBoth (MyP a b) = fA a && fB b
             unLista :: Lista a -> [a]
             unLista (MyL l) = l
 

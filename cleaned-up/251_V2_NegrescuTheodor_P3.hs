@@ -11,8 +11,8 @@ instance Applicative AE where
 
 instance Monad AE where
     return a = AE (Right a, "")
-    (>>=) (AE ((Left err), log)) fn = AE $ (Left err, log)
-    (>>=) (AE ((Right val), log)) fn = AE $ (newVal, log ++ newLog)
+    (>>=) (AE (Left err, log)) fn = AE (Left err, log)
+    (>>=) (AE (Right val, log)) fn = AE (newVal, log ++ newLog)
         where
             (AE (newVal, newLog)) = fn val
 
@@ -23,8 +23,8 @@ testAE = ma >>= f
         f x = AE (if x `mod` 2 == 0 then Right x else Left "error", "si pere!")
 
 divAE :: Int -> AE Int
-divAE x | x `mod` 2 == 0 = AE $ (Right (x `div` 2), " div: " ++ show x)
-        | otherwise = AE $ (Left "odd", " " ++ (show x) ++ " is ODD!")
+divAE x | x `mod` 2 == 0 = AE (Right (x `div` 2), " div: " ++ show x)
+        | otherwise = AE (Left "odd", " " ++ show x ++ " is ODD!")
 
 divManyAE :: Int -> AE Int
 divManyAE x = divAE x >>= divManyAE

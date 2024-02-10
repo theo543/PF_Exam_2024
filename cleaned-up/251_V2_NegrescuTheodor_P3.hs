@@ -1,7 +1,8 @@
 newtype AE a = AE {getAE :: (Either String a, String)} deriving Show
 
 instance Functor AE where
-    fmap f ma = f <$> ma
+    fmap f (AE (Right val, log)) = AE (Right (f val), log)
+    fmap f (AE (Left err, log)) = AE (Left err, log)
 
 instance Applicative AE where
     pure = return
@@ -29,4 +30,17 @@ divAE x | x `mod` 2 == 0 = AE (Right (x `div` 2), " div: " ++ show x)
 divManyAE :: Int -> AE Int
 divManyAE x = divAE x >>= divManyAE
 
+testAE2 :: AE Int
 testAE2 = divManyAE $ 1024 * 3
+
+testAE3 :: AE Int
+testAE3 = (* 100) <$> divAE 64
+
+wrappedFn :: AE (Int -> Int)
+wrappedFn = AE (Right (* 100), "multiply by 100")
+
+modifiedFn :: AE (Int -> Int)
+modifiedFn = wrappedFn >>= (\f -> AE (Right ((+ 1) . f), " after adding 1"))
+
+testAE4 :: AE Int
+testAE4 = modifiedFn <*> AE (Right 5, "5")
